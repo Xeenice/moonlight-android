@@ -95,6 +95,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
     private int drFlags = 0;
 
+    private SurfaceView surfaceView;
     private FlatSbsRenderer flatSbsRenderer;
 
     public static final String EXTRA_HOST = "Host";
@@ -161,15 +162,17 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
         // Inflate the content
         if (prefConfig.flatSbs) {
-            setContentView(R.layout.activity_game_flat_sbs);
-
-            GLSurfaceView glSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceView);
+            GLSurfaceView glSurfaceView = new GLSurfaceView(this);
             glSurfaceView.setEGLContextClientVersion(2);
             flatSbsRenderer = new FlatSbsRenderer(glSurfaceView);
             glSurfaceView.setRenderer(flatSbsRenderer);
             glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
+            setContentView(glSurfaceView);
+            surfaceView = glSurfaceView;
         } else {
             setContentView(R.layout.activity_game);
+            surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         }
 
         // Start the spinner
@@ -177,9 +180,8 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 getResources().getString(R.string.conn_establishing_msg), true);
 
         // Listen for events on the game surface
-        SurfaceView sv = (SurfaceView) findViewById(R.id.surfaceView);
-        sv.setOnGenericMotionListener(this);
-        sv.setOnTouchListener(this);
+        surfaceView.setOnGenericMotionListener(this);
+        surfaceView.setOnTouchListener(this);
 
         // Warn the user if they're on a metered connection
         checkDataConnection();
@@ -241,7 +243,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             }
         }
 
-        SurfaceHolder sh = sv.getHolder();
+        SurfaceHolder sh = surfaceView.getHolder();
         if (prefConfig.stretchVideo || !decoderRenderer.isHardwareAccelerated() || aspectRatioMatch) {
             // Set the surface to the size of the video
             sh.setFixedSize(prefConfig.width, prefConfig.height);
@@ -272,7 +274,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         super.onResume();
 
         if (prefConfig.flatSbs) {
-            GLSurfaceView glSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceView);
+            GLSurfaceView glSurfaceView = (GLSurfaceView) surfaceView;
             glSurfaceView.onResume();
         }
     }
@@ -282,7 +284,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         super.onPause();
 
         if (prefConfig.flatSbs) {
-            GLSurfaceView glSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceView);
+            GLSurfaceView glSurfaceView = (GLSurfaceView) surfaceView;
             glSurfaceView.onPause();
         }
     }
@@ -858,7 +860,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             // Resize the surface to match the aspect ratio of the video
             // This must be done after the surface is created.
             if (deferredSurfaceResize) {
-                resizeSurfaceWithAspectRatio((SurfaceView) findViewById(R.id.surfaceView),
+                resizeSurfaceWithAspectRatio(surfaceView,
                         prefConfig.width, prefConfig.height);
             }
 
