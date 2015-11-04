@@ -147,6 +147,8 @@ public class FlatSbsRenderer implements GLSurfaceView.Renderer {
     public synchronized void onDrawFrame(GL10 gl) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
+        surfaceTexture.updateTexImage();
+
         GLES20.glUseProgram(program);
 
         GLES20.glEnableVertexAttribArray(positionHandle);
