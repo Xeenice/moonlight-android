@@ -54,7 +54,7 @@ import android.widget.Toast;
 import java.util.Locale;
 
 
-public class Game extends Activity implements SurfaceHolder.Callback,
+public class Game extends Activity implements SurfaceHolder.Callback, FlatSbsRenderer.Callback,
     OnGenericMotionListener, OnTouchListener, NvConnectionListener, EvdevListener,
     OnSystemUiVisibilityChangeListener, GameGestures
 {
@@ -166,6 +166,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             glSurfaceView.setEGLContextClientVersion(2);
             glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
             flatSbsRenderer = new FlatSbsRenderer(glSurfaceView);
+            flatSbsRenderer.setCallback(this);
             glSurfaceView.setRenderer(flatSbsRenderer);
             glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
@@ -855,6 +856,10 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        if (prefConfig.flatSbs) {
+            return;
+        }
+
         if (!connected && !connecting) {
             connecting = true;
 
@@ -865,14 +870,21 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                         prefConfig.width, prefConfig.height);
             }
 
-            Object videoRenderTarget;
-            if (prefConfig.flatSbs) {
-                videoRenderTarget = new Surface(flatSbsRenderer.getSurfaceTexture());
-            } else {
-                videoRenderTarget = holder;
-            }
+            conn.start(PlatformBinding.getDeviceName(), holder, drFlags,
+                    PlatformBinding.getAudioRenderer(), decoderRenderer);
+        }
+    }
 
-            conn.start(PlatformBinding.getDeviceName(), videoRenderTarget, drFlags,
+    @Override
+    public void glSurfaceCreated(SurfaceTexture surfaceTexture) {
+        if (!prefConfig.flatSbs) {
+            return;
+        }
+
+        if (!connected && !connecting) {
+            connecting = true;
+
+            conn.start(PlatformBinding.getDeviceName(), new Surface(surfaceTexture), drFlags,
                     PlatformBinding.getAudioRenderer(), decoderRenderer);
         }
     }

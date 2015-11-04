@@ -18,6 +18,12 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class FlatSbsRenderer implements GLSurfaceView.Renderer {
 
+    public interface Callback {
+
+        void glSurfaceCreated(SurfaceTexture surfaceTexture);
+
+    }
+
     private static final String VERTEX_SHADER =
             "attribute vec2 aPosition;\n" +
             "attribute vec2 aTexCoord;\n" +
@@ -60,6 +66,7 @@ public class FlatSbsRenderer implements GLSurfaceView.Renderer {
     private static final int VERTEX_STRIDE = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
 
     private GLSurfaceView glSurfaceView;
+    private Callback callback;
     private SurfaceTexture surfaceTexture;
     private FloatBuffer vertexBuffer;
     private ShortBuffer indexBuffer;
@@ -72,8 +79,8 @@ public class FlatSbsRenderer implements GLSurfaceView.Renderer {
         this.glSurfaceView = glSurfaceView;
     }
 
-    public synchronized SurfaceTexture getSurfaceTexture() {
-        return surfaceTexture;
+    public void setCallback(Callback callback) {
+        this.callback = callback;
     }
 
     @Override
@@ -127,6 +134,8 @@ public class FlatSbsRenderer implements GLSurfaceView.Renderer {
                 glSurfaceView.requestRender();
             }
         });
+
+        callback.glSurfaceCreated(surfaceTexture);
     }
 
     @Override
