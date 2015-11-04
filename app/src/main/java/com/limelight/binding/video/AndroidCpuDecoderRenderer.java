@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 
 import android.graphics.PixelFormat;
 import android.os.Build;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import com.limelight.LimeLog;
@@ -133,15 +134,21 @@ public class AndroidCpuDecoderRenderer extends EnhancedDecoderRenderer {
             LimeLog.info("Using high quality decoding");
         }
 
-        SurfaceHolder sh = (SurfaceHolder)renderTarget;
-        sh.setFormat(PixelFormat.RGBX_8888);
+        Surface renderSurface;
+        if (renderTarget instanceof  SurfaceHolder) {
+            SurfaceHolder sh = (SurfaceHolder) renderTarget;
+            sh.setFormat(PixelFormat.RGBX_8888);
+            renderSurface = sh.getSurface();
+        } else {
+            renderSurface = (Surface) renderTarget;
+        }
 
         int err = AvcDecoder.init(width, height, avcFlags, threadCount);
         if (err != 0) {
             throw new IllegalStateException("AVC decoder initialization failure: "+err);
         }
 
-        if (!AvcDecoder.setRenderTarget(sh.getSurface())) {
+        if (!AvcDecoder.setRenderTarget(renderSurface)) {
             return false;
         }
 

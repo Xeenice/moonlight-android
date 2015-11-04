@@ -25,10 +25,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Point;
+import android.graphics.SurfaceTexture;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -36,6 +38,7 @@ import android.view.Display;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -92,6 +95,8 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
     private int drFlags = 0;
 
+    private FlatSbsRenderer flatSbsRenderer;
+
     public static final String EXTRA_HOST = "Host";
     public static final String EXTRA_APP_NAME = "AppName";
     public static final String EXTRA_APP_ID = "AppId";
@@ -134,13 +139,6 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         // Change volume button behavior
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        // Inflate the content
-        setContentView(R.layout.activity_game);
-
-        // Start the spinner
-        spinner = SpinnerDialog.displayDialog(this, getResources().getString(R.string.conn_establishing_title),
-                getResources().getString(R.string.conn_establishing_msg), true);
-
         // Read the stream preferences
         prefConfig = PreferenceConfiguration.readPreferences(this);
         switch (prefConfig.decoder) {
@@ -160,6 +158,23 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
         Display display = getWindowManager().getDefaultDisplay();
         display.getSize(screenSize);
+
+        // Inflate the content
+        if (prefConfig.flatSbs) {
+            setContentView(R.layout.activity_game_flat_sbs);
+
+            GLSurfaceView glSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceView);
+            glSurfaceView.setEGLContextClientVersion(2);
+            flatSbsRenderer = new FlatSbsRenderer(glSurfaceView);
+            glSurfaceView.setRenderer(flatSbsRenderer);
+            glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        } else {
+            setContentView(R.layout.activity_game);
+        }
+
+        // Start the spinner
+        spinner = SpinnerDialog.displayDialog(this, getResources().getString(R.string.conn_establishing_title),
+                getResources().getString(R.string.conn_establishing_msg), true);
 
         // Listen for events on the game surface
         SurfaceView sv = (SurfaceView) findViewById(R.id.surfaceView);
@@ -250,6 +265,26 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
         // The connection will be started when the surface gets created
         sh.addCallback(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (prefConfig.flatSbs) {
+            GLSurfaceView glSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceView);
+            glSurfaceView.onResume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (prefConfig.flatSbs) {
+            GLSurfaceView glSurfaceView = (GLSurfaceView) findViewById(R.id.surfaceView);
+            glSurfaceView.onPause();
+        }
     }
 
     private void resizeSurfaceWithAspectRatio(SurfaceView sv, double vidWidth, double vidHeight)
@@ -827,7 +862,14 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                         prefConfig.width, prefConfig.height);
             }
 
-            conn.start(PlatformBinding.getDeviceName(), holder, drFlags,
+            Object videoRenderTarget;
+            if (prefConfig.flatSbs) {
+                videoRenderTarget = new Surface(flatSbsRenderer.getSurfaceTexture());
+            } else {
+                videoRenderTarget = holder;
+            }
+
+            conn.start(PlatformBinding.getDeviceName(), videoRenderTarget, drFlags,
                     PlatformBinding.getAudioRenderer(), decoderRenderer);
         }
     }

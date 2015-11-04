@@ -14,12 +14,14 @@ import com.limelight.nvstream.av.DecodeUnit;
 import com.limelight.nvstream.av.video.VideoDecoderRenderer;
 import com.limelight.nvstream.av.video.VideoDepacketizer;
 
+import android.graphics.PixelFormat;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaCodec.BufferInfo;
 import android.media.MediaCodec.CodecException;
 import android.os.Build;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 
 public class MediaCodecDecoderRenderer extends EnhancedDecoderRenderer {
@@ -116,7 +118,15 @@ public class MediaCodecDecoderRenderer extends EnhancedDecoderRenderer {
             videoFormat.setInteger(MediaFormat.KEY_MAX_HEIGHT, height);
         }
 
-        videoDecoder.configure(videoFormat, ((SurfaceHolder)renderTarget).getSurface(), null, 0);
+        Surface renderSurface;
+        if (renderTarget instanceof  SurfaceHolder) {
+            SurfaceHolder sh = (SurfaceHolder) renderTarget;
+            renderSurface = sh.getSurface();
+        } else {
+            renderSurface = (Surface) renderTarget;
+        }
+
+        videoDecoder.configure(videoFormat, renderSurface, null, 0);
         videoDecoder.setVideoScalingMode(MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT);
 
         LimeLog.info("Using hardware decoding");
