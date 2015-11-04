@@ -164,6 +164,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         if (prefConfig.flatSbs) {
             GLSurfaceView glSurfaceView = new GLSurfaceView(this);
             glSurfaceView.setEGLContextClientVersion(2);
+            glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
             flatSbsRenderer = new FlatSbsRenderer(glSurfaceView);
             glSurfaceView.setRenderer(flatSbsRenderer);
             glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
