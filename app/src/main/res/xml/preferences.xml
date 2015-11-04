@@ -21,6 +21,14 @@
             android:title="@string/title_checkbox_stretch_video"
             android:defaultValue="false" />
         <CheckBoxPreference
+            android:key="checkbox_flat_sbs"
+            android:title="@string/title_checkbox_flat_sbs"
+            android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="checkbox_half_width"
+            android:title="@string/title_checkbox_half_width"
+            android:defaultValue="false" />
+        <CheckBoxPreference
             android:key="checkbox_disable_warnings"
             android:title="@string/title_checkbox_disable_warnings"
             android:summary="@string/summary_checkbox_disable_warnings"
