@@ -36,8 +36,8 @@ public class GlassesRenderer implements GLSurfaceView.Renderer {
             "varying vec2 vTexCoord;\n" +
             "uniform samplerExternalOES sTexture;\n" +
             "void main() {\n" +
-            "  vec2 colorCoord = mod(vTexCoord * uScreenSides, 1.0);\n" +
-            "  vec4 color = texture2D(sTexture, colorCoord);\n" +
+            "  vec2 frameCoord = vec2(mod(vTexCoord.x * uScreenSides, 1.0), vTexCoord.y);\n" +
+            "  vec4 color = texture2D(sTexture, frameCoord);\n" +
             "  gl_FragColor = color;\n" +
             "}\n";
 
