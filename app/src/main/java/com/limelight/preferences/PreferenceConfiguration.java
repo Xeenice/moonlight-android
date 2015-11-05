@@ -11,8 +11,6 @@ public class PreferenceConfiguration {
     private static final String DECODER_PREF_STRING = "list_decoders";
     static final String BITRATE_PREF_STRING = "seekbar_bitrate";
     private static final String STRETCH_PREF_STRING = "checkbox_stretch_video";
-    private static final String FLAT_SBS_PREF_STRING = "checkbox_flat_sbs";
-    private static final String HALF_WIDTH_PREF_STRING = "checkbox_half_width";
     private static final String SOPS_PREF_STRING = "checkbox_enable_sops";
     private static final String DISABLE_TOASTS_PREF_STRING = "checkbox_disable_warnings";
     private static final String HOST_AUDIO_PREF_STRING = "checkbox_host_audio";
@@ -21,6 +19,9 @@ public class PreferenceConfiguration {
     private static final String LIST_MODE_PREF_STRING = "checkbox_list_mode";
     private static final String SMALL_ICONS_PREF_STRING = "checkbox_small_icon_mode";
     private static final String MULTI_CONTROLLER_PREF_STRING = "checkbox_multi_controller";
+    private static final String VR_FLAT_SBS_PREF_STRING = "checkbox_vr_flat_sbs";
+    private static final String VR_HALF_WIDTH_PREF_STRING = "checkbox_vr_half_width";
+    private static final String VR_HALF_HEIGHT_PREF_STRING = "checkbox_vr_half_height";
 
     private static final int BITRATE_DEFAULT_720_30 = 5;
     private static final int BITRATE_DEFAULT_720_60 = 10;
@@ -31,8 +32,6 @@ public class PreferenceConfiguration {
     private static final String DEFAULT_DECODER = "auto";
     private static final int DEFAULT_BITRATE = BITRATE_DEFAULT_720_60;
     private static final boolean DEFAULT_STRETCH = false;
-    private static final boolean DEFAULT_FLAT_SBS = false;
-    private static final boolean DEFAULT_HALF_WIDTH = false;
     private static final boolean DEFAULT_SOPS = true;
     private static final boolean DEFAULT_DISABLE_TOASTS = false;
     private static final boolean DEFAULT_HOST_AUDIO = false;
@@ -40,6 +39,9 @@ public class PreferenceConfiguration {
     public static final String DEFAULT_LANGUAGE = "default";
     private static final boolean DEFAULT_LIST_MODE = false;
     private static final boolean DEFAULT_MULTI_CONTROLLER = true;
+    private static final boolean DEFAULT_VR_FLAT_SBS = false;
+    private static final boolean DEFAULT_VR_HALF_WIDTH = false;
+    private static final boolean DEFAULT_VR_HALF_HEIGHT = false;
 
     public static final int FORCE_HARDWARE_DECODER = -1;
     public static final int AUTOSELECT_DECODER = 0;
@@ -49,9 +51,10 @@ public class PreferenceConfiguration {
     public int bitrate;
     public int decoder;
     public int deadzonePercentage;
-    public boolean stretchVideo, flatSbs, halfWidth, enableSops, playHostAudio, disableWarnings;
+    public boolean stretchVideo, enableSops, playHostAudio, disableWarnings;
     public String language;
     public boolean listMode, smallIconMode, multiController;
+    public boolean vrFlatSbs, vrHalfWidth, vrHalfHeight;
 
     public static int getDefaultBitrate(String resFpsString) {
         if (resFpsString.equals("720p30")) {
@@ -159,12 +162,13 @@ public class PreferenceConfiguration {
         config.disableWarnings = prefs.getBoolean(DISABLE_TOASTS_PREF_STRING, DEFAULT_DISABLE_TOASTS);
         config.enableSops = prefs.getBoolean(SOPS_PREF_STRING, DEFAULT_SOPS);
         config.stretchVideo = prefs.getBoolean(STRETCH_PREF_STRING, DEFAULT_STRETCH);
-        config.flatSbs = prefs.getBoolean(FLAT_SBS_PREF_STRING, DEFAULT_FLAT_SBS);
-        config.halfWidth = prefs.getBoolean(HALF_WIDTH_PREF_STRING, DEFAULT_HALF_WIDTH);
         config.playHostAudio = prefs.getBoolean(HOST_AUDIO_PREF_STRING, DEFAULT_HOST_AUDIO);
         config.listMode = prefs.getBoolean(LIST_MODE_PREF_STRING, DEFAULT_LIST_MODE);
         config.smallIconMode = prefs.getBoolean(SMALL_ICONS_PREF_STRING, getDefaultSmallMode(context));
         config.multiController = prefs.getBoolean(MULTI_CONTROLLER_PREF_STRING, DEFAULT_MULTI_CONTROLLER);
+        config.vrFlatSbs = prefs.getBoolean(VR_FLAT_SBS_PREF_STRING, DEFAULT_VR_FLAT_SBS);
+        config.vrHalfWidth = prefs.getBoolean(VR_HALF_WIDTH_PREF_STRING, DEFAULT_VR_HALF_WIDTH);
+        config.vrHalfHeight = prefs.getBoolean(VR_HALF_HEIGHT_PREF_STRING, DEFAULT_VR_HALF_HEIGHT);
 
         return config;
     }

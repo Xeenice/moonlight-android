@@ -162,13 +162,15 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
         Display display = getWindowManager().getDefaultDisplay();
         display.getSize(screenSize);
 
-        boolean glassesEnabled = (prefConfig.flatSbs);
+        boolean glassesEnabled = (prefConfig.vrFlatSbs || prefConfig.vrHalfHeight);
         int streamWidth = prefConfig.width;
         int streamHeight = prefConfig.height;
 
         if (glassesEnabled) {
-            if (prefConfig.flatSbs && prefConfig.halfWidth) {
+            if (prefConfig.vrFlatSbs && prefConfig.vrHalfWidth) {
                 streamWidth /= 2;
+            } else if (prefConfig.vrHalfHeight) {
+                streamHeight /= 2;
             }
 
             float screenAspectRatio = (float) screenSize.x / (float) screenSize.y;
@@ -178,7 +180,8 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
             glSurfaceView = new GLSurfaceView(this);
             glSurfaceView.setEGLContextClientVersion(2);
             glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-            glassesRenderer = new GlassesRenderer(glSurfaceView, aspectCorrection, prefConfig.flatSbs);
+            glassesRenderer = new GlassesRenderer(glSurfaceView,
+                    aspectCorrection, prefConfig.vrFlatSbs);
             glassesRenderer.setCallback(this);
             glSurfaceView.setRenderer(glassesRenderer);
             glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
