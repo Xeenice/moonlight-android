@@ -54,7 +54,7 @@ import android.widget.Toast;
 import java.util.Locale;
 
 
-public class Game extends Activity implements SurfaceHolder.Callback, FlatSbsRenderer.Callback,
+public class Game extends Activity implements SurfaceHolder.Callback, GlassesRenderer.Callback,
     OnGenericMotionListener, OnTouchListener, NvConnectionListener, EvdevListener,
     OnSystemUiVisibilityChangeListener, GameGestures
 {
@@ -96,7 +96,7 @@ public class Game extends Activity implements SurfaceHolder.Callback, FlatSbsRen
     private int drFlags = 0;
 
     private SurfaceView surfaceView;
-    private FlatSbsRenderer flatSbsRenderer;
+    private GlassesRenderer glassesRenderer;
 
     public static final String EXTRA_HOST = "Host";
     public static final String EXTRA_APP_NAME = "AppName";
@@ -165,9 +165,9 @@ public class Game extends Activity implements SurfaceHolder.Callback, FlatSbsRen
             GLSurfaceView glSurfaceView = new GLSurfaceView(this);
             glSurfaceView.setEGLContextClientVersion(2);
             glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-            flatSbsRenderer = new FlatSbsRenderer(glSurfaceView);
-            flatSbsRenderer.setCallback(this);
-            glSurfaceView.setRenderer(flatSbsRenderer);
+            glassesRenderer = new GlassesRenderer(glSurfaceView);
+            glassesRenderer.setCallback(this);
+            glSurfaceView.setRenderer(glassesRenderer);
             glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
             setContentView(glSurfaceView);

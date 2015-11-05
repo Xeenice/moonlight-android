@@ -13,15 +13,10 @@ import java.nio.ShortBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-/**
- * Created by grigorev on 04.11.2015.
- */
-public class FlatSbsRenderer implements GLSurfaceView.Renderer {
+public class GlassesRenderer implements GLSurfaceView.Renderer {
 
     public interface Callback {
-
         void glSurfaceCreated(SurfaceTexture surfaceTexture);
-
     }
 
     private static final String VERTEX_SHADER =
@@ -75,7 +70,7 @@ public class FlatSbsRenderer implements GLSurfaceView.Renderer {
     private int positionHandle;
     private int textureHandle;
 
-    public FlatSbsRenderer(GLSurfaceView glSurfaceView) {
+    public GlassesRenderer(GLSurfaceView glSurfaceView) {
         this.glSurfaceView = glSurfaceView;
     }
 
