@@ -96,6 +96,7 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
     private int drFlags = 0;
 
     private SurfaceView surfaceView;
+    private GLSurfaceView glSurfaceView;
     private GlassesRenderer glassesRenderer;
 
     public static final String EXTRA_HOST = "Host";
@@ -162,7 +163,7 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
 
         // Inflate the content
         if (prefConfig.flatSbs) {
-            GLSurfaceView glSurfaceView = new GLSurfaceView(this);
+            glSurfaceView = new GLSurfaceView(this);
             glSurfaceView.setEGLContextClientVersion(2);
             glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
             glassesRenderer = new GlassesRenderer(glSurfaceView);
@@ -275,8 +276,7 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
     protected void onResume() {
         super.onResume();
 
-        if (prefConfig.flatSbs) {
-            GLSurfaceView glSurfaceView = (GLSurfaceView) surfaceView;
+        if (glSurfaceView != null) {
             glSurfaceView.onResume();
         }
     }
@@ -285,8 +285,7 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
     protected void onPause() {
         super.onPause();
 
-        if (prefConfig.flatSbs) {
-            GLSurfaceView glSurfaceView = (GLSurfaceView) surfaceView;
+        if (glSurfaceView != null) {
             glSurfaceView.onPause();
         }
     }
@@ -856,7 +855,7 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        if (prefConfig.flatSbs) {
+        if (glSurfaceView != null) {
             return;
         }
 
@@ -877,10 +876,6 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
 
     @Override
     public void glSurfaceCreated(SurfaceTexture surfaceTexture) {
-        if (!prefConfig.flatSbs) {
-            return;
-        }
-
         if (!connected && !connecting) {
             connecting = true;
 
