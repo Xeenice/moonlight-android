@@ -98,6 +98,7 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
     private SurfaceView surfaceView;
     private GLSurfaceView glSurfaceView;
     private GlassesRenderer glassesRenderer;
+    private float aspectCorrection;
 
     public static final String EXTRA_HOST = "Host";
     public static final String EXTRA_APP_NAME = "AppName";
@@ -161,12 +162,23 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
         Display display = getWindowManager().getDefaultDisplay();
         display.getSize(screenSize);
 
-        // Inflate the content
-        if (prefConfig.flatSbs) {
+        boolean glassesEnabled = (prefConfig.flatSbs);
+        int streamWidth = prefConfig.width;
+        int streamHeight = prefConfig.height;
+
+        if (glassesEnabled) {
+            if (prefConfig.flatSbs && prefConfig.halfWidth) {
+                streamWidth /= 2;
+            }
+
+            float screenAspectRatio = (float) screenSize.x / (float) screenSize.y;
+            float streamAspectRatio = (float) streamWidth / (float) streamHeight;
+            aspectCorrection = screenAspectRatio / streamAspectRatio;
+
             glSurfaceView = new GLSurfaceView(this);
             glSurfaceView.setEGLContextClientVersion(2);
             glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-            glassesRenderer = new GlassesRenderer(glSurfaceView);
+            glassesRenderer = new GlassesRenderer(glSurfaceView, aspectCorrection, prefConfig.flatSbs);
             glassesRenderer.setCallback(this);
             glSurfaceView.setRenderer(glassesRenderer);
             glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
@@ -174,6 +186,7 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
             setContentView(glSurfaceView);
             surfaceView = glSurfaceView;
         } else {
+            // Inflate the content
             setContentView(R.layout.activity_game);
             surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         }
@@ -210,7 +223,7 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
         decoderRenderer.initializeWithFlags(drFlags);
         
         StreamConfiguration config = new StreamConfiguration.Builder()
-                .setResolution(prefConfig.width, prefConfig.height)
+                .setResolution(streamWidth, streamHeight)
                 .setRefreshRate(prefConfig.fps)
                 .setApp(new NvApp(appName, appId))
                 .setBitrate(prefConfig.bitrate * 1000)
@@ -230,29 +243,32 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
         InputManager inputManager = (InputManager) getSystemService(Context.INPUT_SERVICE);
         inputManager.registerInputDeviceListener(controllerHandler, null);
 
-        boolean aspectRatioMatch = false;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-            // On KitKat and later (where we can use the whole screen via immersive mode), we'll
-            // calculate whether we need to scale by aspect ratio or not. If not, we'll use
-            // setFixedSize so we can handle 4K properly. The only known devices that have
-            // >= 4K screens have exactly 4K screens, so we'll be able to hit this good path
-            // on these devices. On Marshmallow, we can start changing to 4K manually but no
-            // 4K devices run 6.0 at the moment.
-            double screenAspectRatio = ((double)screenSize.y) / screenSize.x;
-            double streamAspectRatio = ((double)prefConfig.height) / prefConfig.width;
-            if (Math.abs(screenAspectRatio - streamAspectRatio) < 0.001) {
-                LimeLog.info("Stream has compatible aspect ratio with output display");
-                aspectRatioMatch = true;
-            }
-        }
-
         SurfaceHolder sh = surfaceView.getHolder();
-        if (prefConfig.stretchVideo || !decoderRenderer.isHardwareAccelerated() || aspectRatioMatch) {
-            // Set the surface to the size of the video
-            sh.setFixedSize(prefConfig.width, prefConfig.height);
-        }
-        else {
-            deferredSurfaceResize = true;
+
+        if (glSurfaceView == null) {
+            boolean aspectRatioMatch = false;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                // On KitKat and later (where we can use the whole screen via immersive mode), we'll
+                // calculate whether we need to scale by aspect ratio or not. If not, we'll use
+                // setFixedSize so we can handle 4K properly. The only known devices that have
+                // >= 4K screens have exactly 4K screens, so we'll be able to hit this good path
+                // on these devices. On Marshmallow, we can start changing to 4K manually but no
+                // 4K devices run 6.0 at the moment.
+                double screenAspectRatio = ((double)screenSize.y) / screenSize.x;
+                double streamAspectRatio = ((double)prefConfig.height) / prefConfig.width;
+                if (Math.abs(screenAspectRatio - streamAspectRatio) < 0.001) {
+                    LimeLog.info("Stream has compatible aspect ratio with output display");
+                    aspectRatioMatch = true;
+                }
+            }
+
+            if (prefConfig.stretchVideo || !decoderRenderer.isHardwareAccelerated() || aspectRatioMatch) {
+                // Set the surface to the size of the video
+                sh.setFixedSize(prefConfig.width, prefConfig.height);
+            }
+            else {
+                deferredSurfaceResize = true;
+            }
         }
 
         // Initialize touch contexts

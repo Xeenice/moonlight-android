@@ -25,39 +25,26 @@ public class GlassesRenderer implements GLSurfaceView.Renderer {
             "varying vec2 vTexCoord;\n" +
             "void main() {\n" +
             "  gl_Position = vec4(aPosition, 0.0, 1.0);\n" +
-            "  vTexCoord = aTexCoord;\n" +
+            "  vTexCoord = vec2(0.5 + 0.5 * sign(aPosition.x),\n" +
+            "    0.5 - 0.5 * sign(aPosition.y));\n" +
             "}\n";
 
     private static final String FRAGMENT_SHADER =
             "#extension GL_OES_EGL_image_external : require\n" +
             "precision mediump float;\n" +
+            "uniform float uScreenSides;\n" +
             "varying vec2 vTexCoord;\n" +
             "uniform samplerExternalOES sTexture;\n" +
             "void main() {\n" +
-            "  vec4 color = texture2D(sTexture, vTexCoord);\n" +
+            "  vec2 colorCoord = mod(vTexCoord * uScreenSides, 1.0);\n" +
+            "  vec4 color = texture2D(sTexture, colorCoord);\n" +
             "  gl_FragColor = color;\n" +
             "}\n";
 
-    private static final float VERTICES[] = {
-            // X, Y, U, V
-            -1.0f,  1.0f, 0.0f, 0.0f,
-            -1.0f, -1.0f, 0.0f, 1.0f,
-             0.0f,  1.0f, 1.0f, 0.0f,
-             0.0f, -1.0f, 1.0f, 1.0f,
-             0.0f,  1.0f, 0.0f, 0.0f,
-             0.0f, -1.0f, 0.0f, 1.0f,
-             1.0f,  1.0f, 1.0f, 0.0f,
-             1.0f, -1.0f, 1.0f, 1.0f };
     private static final short INDICES[] = {
             0, 1, 2,
-            2, 1, 3,
-            4, 5, 6,
-            6, 5, 7 };
-    private static final int VERTEX_POSITION_OFFSET = 0;
-    private static final int VERTEX_TEXCOORD_OFFSET = 2;
-    private static final int VERTEX_POSITION_SIZE = 2;
-    private static final int VERTEX_TEXCOORD_SIZE = 2;
-    private static final int COORDS_PER_VERTEX = VERTEX_POSITION_SIZE + VERTEX_TEXCOORD_SIZE;
+            2, 1, 3 };
+    private static final int COORDS_PER_VERTEX = 2;
     private static final int VERTEX_STRIDE = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
 
     private GLSurfaceView glSurfaceView;
@@ -65,13 +52,17 @@ public class GlassesRenderer implements GLSurfaceView.Renderer {
     private SurfaceTexture surfaceTexture;
     private FloatBuffer vertexBuffer;
     private ShortBuffer indexBuffer;
+    private float aspectCorrection;
+    private float screenSides;
     private int program;
     private int textureId;
     private int positionHandle;
-    private int textureHandle;
+    private int screenSidesHandle;
 
-    public GlassesRenderer(GLSurfaceView glSurfaceView) {
+    public GlassesRenderer(GLSurfaceView glSurfaceView, float aspectCorrection, boolean flatSbs) {
         this.glSurfaceView = glSurfaceView;
+        this.aspectCorrection = aspectCorrection;
+        this.screenSides = (flatSbs) ? 2 : 1;
     }
 
     public void setCallback(Callback callback) {
@@ -96,9 +87,15 @@ public class GlassesRenderer implements GLSurfaceView.Renderer {
         GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
                 GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
-        vertexBuffer = ByteBuffer.allocateDirect(VERTICES.length * 4)
+        final float vertices[] = {
+                -1.0f,  aspectCorrection,
+                -1.0f, -aspectCorrection,
+                1.0f,  aspectCorrection,
+                1.0f, -aspectCorrection, };
+
+        vertexBuffer = ByteBuffer.allocateDirect(vertices.length * 4)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
-        vertexBuffer.put(VERTICES);
+        vertexBuffer.put(vertices);
         vertexBuffer.position(0);
 
         indexBuffer = ByteBuffer.allocateDirect(INDICES.length * 2)
@@ -120,7 +117,7 @@ public class GlassesRenderer implements GLSurfaceView.Renderer {
         GLES20.glLinkProgram(program);
 
         positionHandle = GLES20.glGetAttribLocation(program, "aPosition");
-        textureHandle = GLES20.glGetAttribLocation(program, "aTexCoord");
+        screenSidesHandle = GLES20.glGetUniformLocation(program, "uScreenSides");
 
         surfaceTexture = new SurfaceTexture(textureId);
         surfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
@@ -146,16 +143,11 @@ public class GlassesRenderer implements GLSurfaceView.Renderer {
 
         GLES20.glUseProgram(program);
 
-        GLES20.glEnableVertexAttribArray(positionHandle);
-        vertexBuffer.position(VERTEX_POSITION_OFFSET);
-        GLES20.glVertexAttribPointer(positionHandle,
-                VERTEX_POSITION_SIZE, GLES20.GL_FLOAT, false,
-                VERTEX_STRIDE, vertexBuffer);
+        GLES20.glUniform1f(screenSidesHandle, screenSides);
 
-        GLES20.glEnableVertexAttribArray(textureHandle);
-        vertexBuffer.position(VERTEX_TEXCOORD_OFFSET);
-        GLES20.glVertexAttribPointer(textureHandle,
-                VERTEX_TEXCOORD_SIZE, GLES20.GL_FLOAT, false,
+        GLES20.glEnableVertexAttribArray(positionHandle);
+        GLES20.glVertexAttribPointer(positionHandle,
+                COORDS_PER_VERTEX, GLES20.GL_FLOAT, false,
                 VERTEX_STRIDE, vertexBuffer);
 
         GLES20.glDrawElements(
@@ -163,7 +155,6 @@ public class GlassesRenderer implements GLSurfaceView.Renderer {
                 GLES20.GL_UNSIGNED_SHORT, indexBuffer);
 
         GLES20.glDisableVertexAttribArray(positionHandle);
-        GLES20.glDisableVertexAttribArray(textureHandle);
     }
 
 }
