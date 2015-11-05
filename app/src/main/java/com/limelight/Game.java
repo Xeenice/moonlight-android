@@ -169,13 +169,17 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
         if (glassesEnabled) {
             if (prefConfig.vrFlatSbs && prefConfig.vrHalfWidth) {
                 streamWidth /= 2;
-            } else if (prefConfig.vrHalfHeight) {
+            }
+            if (!prefConfig.vrFlatSbs && prefConfig.vrHalfHeight) {
                 streamHeight /= 2;
             }
 
-            float screenAspectRatio = (float) screenSize.x / (float) screenSize.y;
-            float streamAspectRatio = (float) streamWidth / (float) streamHeight;
-            aspectCorrection = screenAspectRatio / streamAspectRatio;
+            float screenAspectRatio = (float) screenSize.y / (float) screenSize.x;
+            if (prefConfig.vrFlatSbs) {
+                screenAspectRatio *= 2;
+            }
+            float streamAspectRatio = (float) streamHeight / (float) streamWidth;
+            aspectCorrection = streamAspectRatio / screenAspectRatio;
 
             glSurfaceView = new GLSurfaceView(this);
             glSurfaceView.setEGLContextClientVersion(2);
