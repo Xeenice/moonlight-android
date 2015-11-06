@@ -28,6 +28,8 @@ public class PreferenceConfiguration {
     private static final int BITRATE_DEFAULT_720_60 = 10;
     private static final int BITRATE_DEFAULT_1080_30 = 10;
     private static final int BITRATE_DEFAULT_1080_60 = 20;
+    private static final int BITRATE_DEFAULT_1440_30 = 20;
+    private static final int BITRATE_DEFAULT_1440_60 = 40;
     private static final int BITRATE_DEFAULT_4K_30 = 40;
     private static final int BITRATE_DEFAULT_4K_60 = 80;
 
@@ -72,6 +74,12 @@ public class PreferenceConfiguration {
         }
         else if (resFpsString.equals("1080p60")) {
             return BITRATE_DEFAULT_1080_60;
+        }
+        else if (resFpsString.equals("1440p30")) {
+            return BITRATE_DEFAULT_1440_30;
+        }
+        else if (resFpsString.equals("1440p60")) {
+            return BITRATE_DEFAULT_1440_60;
         }
         else if (resFpsString.equals("4K30")) {
             return BITRATE_DEFAULT_4K_30;
@@ -153,6 +161,16 @@ public class PreferenceConfiguration {
         else if (str.equals("1080p60")) {
             config.width = 1920;
             config.height = 1080;
+            config.fps = 60;
+        }
+        else if (str.equals("1440p30")) {
+            config.width = 2560;
+            config.height = 1440;
+            config.fps = 30;
+        }
+        else if (str.equals("1440p60")) {
+            config.width = 2560;
+            config.height = 1440;
             config.fps = 60;
         }
         else if (str.equals("4K30")) {
