@@ -240,6 +240,9 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
                 .enableLocalAudioPlayback(prefConfig.playHostAudio)
                 .setMaxPacketSize(remote ? 1024 : 1292)
                 .setRemote(remote)
+                .setAudioConfiguration(prefConfig.enable51Surround ?
+                        StreamConfiguration.AUDIO_CONFIGURATION_5_1 :
+                        StreamConfiguration.AUDIO_CONFIGURATION_STEREO)
                 .build();
 
         // Initialize the connection
