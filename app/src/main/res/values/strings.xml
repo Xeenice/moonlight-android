@@ -127,4 +127,5 @@
     <string name="title_checkbox_vr_flat_sbs">Flat side-by-side</string>
     <string name="title_checkbox_vr_half_width">Half sbs stream width</string>
     <string name="title_checkbox_vr_half_height">Half stream height</string>
+    <string name="title_checkbox_vr_gyro_mouse">Gyration mouse</string>
 </resources>

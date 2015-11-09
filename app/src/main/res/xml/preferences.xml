@@ -102,6 +102,10 @@
             android:key="checkbox_vr_half_height"
             android:title="@string/title_checkbox_vr_half_height"
             android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="checkbox_vr_gyro_mouse"
+            android:title="@string/title_checkbox_vr_gyro_mouse"
+            android:defaultValue="false" />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -24,6 +24,7 @@ public class PreferenceConfiguration {
     private static final String VR_FLAT_SBS_PREF_STRING = "checkbox_vr_flat_sbs";
     private static final String VR_HALF_WIDTH_PREF_STRING = "checkbox_vr_half_width";
     private static final String VR_HALF_HEIGHT_PREF_STRING = "checkbox_vr_half_height";
+    private static final String VR_GYRO_MOUSE_PREF_STRING = "checkbox_vr_gyro_mouse";
 
     private static final int BITRATE_DEFAULT_720_30 = 5;
     private static final int BITRATE_DEFAULT_720_60 = 10;
@@ -50,6 +51,7 @@ public class PreferenceConfiguration {
     private static final boolean DEFAULT_VR_FLAT_SBS = false;
     private static final boolean DEFAULT_VR_HALF_WIDTH = false;
     private static final boolean DEFAULT_VR_HALF_HEIGHT = false;
+    private static final boolean DEFAULT_VR_GYRO_MOUSE = false;
 
     public static final int FORCE_HARDWARE_DECODER = -1;
     public static final int AUTOSELECT_DECODER = 0;
@@ -62,7 +64,7 @@ public class PreferenceConfiguration {
     public boolean stretchVideo, enableSops, playHostAudio, disableWarnings;
     public String language;
     public boolean listMode, smallIconMode, multiController, enable51Surround;
-    public boolean vrEnable, vrFlatSbs, vrHalfWidth, vrHalfHeight;
+    public boolean vrEnable, vrFlatSbs, vrHalfWidth, vrHalfHeight, vrGyroMouse;
 
     public static int getDefaultBitrate(String resFpsString) {
         if (resFpsString.equals("720p30")) {
@@ -211,6 +213,7 @@ public class PreferenceConfiguration {
         config.vrFlatSbs = prefs.getBoolean(VR_FLAT_SBS_PREF_STRING, DEFAULT_VR_FLAT_SBS);
         config.vrHalfWidth = prefs.getBoolean(VR_HALF_WIDTH_PREF_STRING, DEFAULT_VR_HALF_WIDTH);
         config.vrHalfHeight = prefs.getBoolean(VR_HALF_HEIGHT_PREF_STRING, DEFAULT_VR_HALF_HEIGHT);
+        config.vrGyroMouse = prefs.getBoolean(VR_GYRO_MOUSE_PREF_STRING, DEFAULT_VR_GYRO_MOUSE);
 
         return config;
     }

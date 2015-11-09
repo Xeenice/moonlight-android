@@ -26,6 +26,10 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.SurfaceTexture;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
@@ -56,7 +60,7 @@ import java.util.Locale;
 
 public class Game extends Activity implements SurfaceHolder.Callback, GlassesRenderer.Callback,
     OnGenericMotionListener, OnTouchListener, NvConnectionListener, EvdevListener,
-    OnSystemUiVisibilityChangeListener, GameGestures
+    OnSystemUiVisibilityChangeListener, GameGestures, SensorEventListener
 {
     private int lastMouseX = Integer.MIN_VALUE;
     private int lastMouseY = Integer.MIN_VALUE;
@@ -98,7 +102,15 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
     private SurfaceView surfaceView;
     private GLSurfaceView glSurfaceView;
     private GlassesRenderer glassesRenderer;
+    private SensorManager sensorManager;
+    private Sensor gyroscopeSensor;
     private float aspectCorrection;
+    private int naturalOrientation;
+    private long sensorTimestamp;
+    private double gyroMouseRemainX;
+    private double gyroMouseRemainY;
+
+    private static final double GYROSCOPE_TO_MOUSE_FACTOR = 100.0;
 
     public static final String EXTRA_HOST = "Host";
     public static final String EXTRA_APP_NAME = "AppName";
@@ -161,6 +173,8 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
 
         Display display = getWindowManager().getDefaultDisplay();
         display.getSize(screenSize);
+        
+        naturalOrientation = display.getRotation();
 
         int streamWidth = prefConfig.width;
         int streamHeight = prefConfig.height;
@@ -195,6 +209,11 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
             // Inflate the content
             setContentView(R.layout.activity_game);
             surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
+        }
+
+        if (prefConfig.vrGyroMouse) {
+            sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+            gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         }
 
         // Start the spinner
@@ -304,6 +323,10 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
         if (glSurfaceView != null) {
             glSurfaceView.onResume();
         }
+
+        if (gyroscopeSensor != null) {
+            sensorManager.registerListener(this, gyroscopeSensor, SensorManager.SENSOR_DELAY_GAME);
+        }
     }
 
     @Override
@@ -312,6 +335,10 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
 
         if (glSurfaceView != null) {
             glSurfaceView.onPause();
+        }
+
+        if (gyroscopeSensor != null) {
+            sensorManager.unregisterListener(this);
         }
     }
 
@@ -997,4 +1024,58 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
             hideSystemUi(2000);
         }
     }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        double deltaX = 0;
+        double deltaY = 0;
+
+        if (sensorTimestamp != 0) {
+            double dt = 1e-9 * (event.timestamp - sensorTimestamp); // [s]
+
+            double axisDeltaX = event.values[0] * dt; // [rad]
+            double axisDeltaY = event.values[1] * dt; // [rad]
+
+            switch (naturalOrientation) {
+                case Surface.ROTATION_90:
+                    deltaX = -axisDeltaY;
+                    deltaY = axisDeltaX;
+                    break;
+                case Surface.ROTATION_180:
+                    deltaX = -axisDeltaX;
+                    deltaY = -axisDeltaY;
+                    break;
+                case Surface.ROTATION_270:
+                    deltaX = axisDeltaY;
+                    deltaY = -axisDeltaX;
+                    break;
+                case Surface.ROTATION_0:
+                default:
+                    deltaX = axisDeltaX;
+                    deltaY = axisDeltaY;
+                    break;
+            }
+
+            deltaX *= GYROSCOPE_TO_MOUSE_FACTOR;
+            deltaY *= GYROSCOPE_TO_MOUSE_FACTOR;
+        }
+
+        gyroMouseRemainX += deltaX;
+        gyroMouseRemainY += deltaY;
+
+        short mouseDeltaX = (short) gyroMouseRemainX;
+        short mouseDeltaY = (short) gyroMouseRemainY;
+        if ((mouseDeltaX != 0) || (mouseDeltaY != 0)) {
+            conn.sendMouseMove(mouseDeltaX, mouseDeltaY);
+        }
+
+        sensorTimestamp = event.timestamp;
+        gyroMouseRemainX -= mouseDeltaX;
+        gyroMouseRemainY -= mouseDeltaY;
+    }
+
 }
