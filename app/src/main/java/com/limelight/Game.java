@@ -901,6 +901,10 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
 
     @Override
     public void glSurfaceCreated(SurfaceTexture surfaceTexture) {
+        if (connected) {
+            stopConnection();
+        }
+
         if (!connected && !connecting) {
             connecting = true;
 
