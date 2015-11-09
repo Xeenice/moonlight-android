@@ -87,6 +87,10 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/category_vr_glasses">
         <CheckBoxPreference
+            android:key="checkbox_vr_enable"
+            android:title="@string/title_checkbox_vr_enable"
+            android:defaultValue="false" />
+        <CheckBoxPreference
             android:key="checkbox_vr_flat_sbs"
             android:title="@string/title_checkbox_vr_flat_sbs"
             android:defaultValue="false" />

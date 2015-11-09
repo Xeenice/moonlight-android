@@ -123,6 +123,7 @@
     <string name="summary_decoder_list">Software decoding may improve video latency at lower streaming settings</string>
 
     <string name="category_vr_glasses">Virtual Reality Glasses</string>
+    <string name="title_checkbox_vr_enable">Enable VR</string>
     <string name="title_checkbox_vr_flat_sbs">Flat side-by-side</string>
     <string name="title_checkbox_vr_half_width">Half sbs stream width</string>
     <string name="title_checkbox_vr_half_height">Half stream height</string>

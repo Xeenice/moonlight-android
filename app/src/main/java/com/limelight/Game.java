@@ -162,11 +162,10 @@ public class Game extends Activity implements SurfaceHolder.Callback, GlassesRen
         Display display = getWindowManager().getDefaultDisplay();
         display.getSize(screenSize);
 
-        boolean glassesEnabled = (prefConfig.vrFlatSbs || prefConfig.vrHalfHeight);
         int streamWidth = prefConfig.width;
         int streamHeight = prefConfig.height;
 
-        if (glassesEnabled) {
+        if (prefConfig.vrEnable) {
             if (prefConfig.vrFlatSbs && prefConfig.vrHalfWidth) {
                 streamWidth /= 2;
             }

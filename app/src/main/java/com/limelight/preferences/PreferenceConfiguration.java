@@ -20,6 +20,7 @@ public class PreferenceConfiguration {
     private static final String SMALL_ICONS_PREF_STRING = "checkbox_small_icon_mode";
     private static final String MULTI_CONTROLLER_PREF_STRING = "checkbox_multi_controller";
     private static final String ENABLE_51_SURROUND_PREF_STRING = "checkbox_51_surround";
+    private static final String VR_ENABLE_PREF_STRING = "checkbox_vr_enable";
     private static final String VR_FLAT_SBS_PREF_STRING = "checkbox_vr_flat_sbs";
     private static final String VR_HALF_WIDTH_PREF_STRING = "checkbox_vr_half_width";
     private static final String VR_HALF_HEIGHT_PREF_STRING = "checkbox_vr_half_height";
@@ -45,6 +46,7 @@ public class PreferenceConfiguration {
     private static final boolean DEFAULT_LIST_MODE = false;
     private static final boolean DEFAULT_MULTI_CONTROLLER = true;
     private static final boolean DEFAULT_ENABLE_51_SURROUND = false;
+    private static final boolean DEFAULT_VR_ENABLE = false;
     private static final boolean DEFAULT_VR_FLAT_SBS = false;
     private static final boolean DEFAULT_VR_HALF_WIDTH = false;
     private static final boolean DEFAULT_VR_HALF_HEIGHT = false;
@@ -60,7 +62,7 @@ public class PreferenceConfiguration {
     public boolean stretchVideo, enableSops, playHostAudio, disableWarnings;
     public String language;
     public boolean listMode, smallIconMode, multiController, enable51Surround;
-    public boolean vrFlatSbs, vrHalfWidth, vrHalfHeight;
+    public boolean vrEnable, vrFlatSbs, vrHalfWidth, vrHalfHeight;
 
     public static int getDefaultBitrate(String resFpsString) {
         if (resFpsString.equals("720p30")) {
@@ -205,6 +207,7 @@ public class PreferenceConfiguration {
         config.smallIconMode = prefs.getBoolean(SMALL_ICONS_PREF_STRING, getDefaultSmallMode(context));
         config.multiController = prefs.getBoolean(MULTI_CONTROLLER_PREF_STRING, DEFAULT_MULTI_CONTROLLER);
         config.enable51Surround = prefs.getBoolean(ENABLE_51_SURROUND_PREF_STRING, DEFAULT_ENABLE_51_SURROUND);
+        config.vrEnable = prefs.getBoolean(VR_ENABLE_PREF_STRING, DEFAULT_VR_ENABLE);
         config.vrFlatSbs = prefs.getBoolean(VR_FLAT_SBS_PREF_STRING, DEFAULT_VR_FLAT_SBS);
         config.vrHalfWidth = prefs.getBoolean(VR_HALF_WIDTH_PREF_STRING, DEFAULT_VR_HALF_WIDTH);
         config.vrHalfHeight = prefs.getBoolean(VR_HALF_HEIGHT_PREF_STRING, DEFAULT_VR_HALF_HEIGHT);
